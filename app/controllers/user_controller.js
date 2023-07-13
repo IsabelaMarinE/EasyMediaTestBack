@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserModel = request('../models/userModel');
+const UserModel = require('../models/userModel');
 
 exports.login_user =  async (req, res, next) => {
   const error = validationResult(req);
@@ -13,7 +13,7 @@ exports.login_user =  async (req, res, next) => {
         { id: user._id, email },
         "KEYOFTOCKEN",
         {
-          expiresIn: "1h",
+          exp: "1h",
         }
       );
       return res

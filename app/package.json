@@ -1,17 +1,21 @@
 {
-  "name": "backend",
+  "name": "app",
   "version": "1.0.0",
-  "description": "API of Easy Media in Nodejs",
+  "description": "Api of test",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js"
   },
-  "author": "Isabela Marin Escobar",
+  "author": "Isabela Marin E",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.1",
+    "mongodb": "^5.6.0",
+    "mongodb-connection-string-url": "^2.6.0",
     "mongoose": "^7.3.4",
     "nodemon": "^3.0.1"
   }
