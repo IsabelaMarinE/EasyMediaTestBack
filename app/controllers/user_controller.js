@@ -1,21 +1,13 @@
-const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel');
 
 exports.login_user =  async (req, res, next) => {
-  const error = validationResult(req);
   const { email, password } = req.body;
-  if(!error.isEmpty()){
-    const user = await UserModel.find().findOne({email});
+  if(email){
+    const user = await UserModel.findOne({email: email});
     if(user && (await bcrypt.compare(password, user.password))){
-      const token = jwt.sign(
-        { id: user._id, email },
-        "KEYOFTOCKEN",
-        {
-          exp: "1h",
-        }
-      );
+      const token = jwt.sign({ email: user.email }, "KEYOFTOCKEN");
       return res
           .status(200)
           .json({
@@ -36,10 +28,8 @@ exports.login_user =  async (req, res, next) => {
 }
 
 exports.create_user = (req, res, next) => {
-  const error = validationResult(req);
-  let passwordHash;
   const { name, email, password } = req.body;
-  if(!error.isEmpty()){
+  if(name && email && password){
     UserModel.find().findOne({email})
       .then((user) => {
         if(user){
@@ -52,18 +42,13 @@ exports.create_user = (req, res, next) => {
           })
         }
       })
-    bcrypt
-      .genSalt(10)
-      .then(salt => {
-        return bcrypt.hash(password, salt)
-      })
-      .then(hash => {
-        passwordHash = hash;
-      });
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    console.log("pass", hash)
     const newUser = new UserModel({
       name: name,
       email: email,
-      password: passwordHash
+      password: hash
     });
     newUser.save()
     .then((data) => {
