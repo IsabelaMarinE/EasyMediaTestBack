@@ -11,7 +11,7 @@ exports.login_user =  async (req, res, next) => {
       return res
           .status(200)
           .json({
-            items: [token],
+            items: [{id: user._id.toString(), token: token}],
             state: true,
             error: ''
           })

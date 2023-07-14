@@ -4,11 +4,11 @@ const error = new Error();
 
 exports.getAllPosts = async (req, res, next) => {
   try {
-    const allpost = PostModel.find();
+    const allpost = await PostModel.find();
     return res
           .status(200)
           .json({
-            items: [allpost],
+            items: allpost,
             state: true,
             error: ''
           })
@@ -23,16 +23,15 @@ exports.getAllPosts = async (req, res, next) => {
   }
 }
 
-exports.getPostByUser = (req, res, next) => {
-  const error = validationResult(req);
-  if(!error.isEmpty()){
-    const { id } = req.body;
+exports.getPostByUser = async (req, res, next) => {
+  const { id } = req.body;
+  if(id){
     try {
-      const postUser = PostModel.find().where('idUser').equal(id);
+      const postUser = await PostModel.find().where('idUser').equal(id);
       return res
             .status(200)
             .json({
-              items: [postUser],
+              items: postUser,
               state: true,
               error: ''
             })
@@ -55,7 +54,8 @@ exports.createPost = (req, res, next) => {
     const newPost = new PostModel({
       idUser: idUser,
       title: title,
-      description: description
+      description: description,
+      date: new Date.now()
     });
     newPost.save()
       .then((data) => {
@@ -82,50 +82,66 @@ exports.createPost = (req, res, next) => {
 }
 
 exports.filterPostTitle = async (req, res, next) => {
-  const postUser =  await PostModel.aggregate(
-    [ { $match : { title : req.params.text } } ]
-  );
-  if(postUser){
+  const text = req.params.text;
+  if(text.length > 0){
+    const postUser =  await PostModel.find({title: { $regex: '.*' + text + '.*' } });
+    if(postUser){
+      return res
+              .status(200)
+              .json({
+                items: postUser,
+                state: true,
+                error: ''
+              })
+    }else{
+      return res
+              .status(204)
+              .json({
+                items: [],
+                state: false,
+                error: 'Not Found'
+              })
+    }
+  }else {
+    const allpost = await PostModel.find();
     return res
-            .status(200)
-            .json({
-              items: [postUser],
-              state: true,
-              error: ''
-            })
-  }else{
-    return res
-            .status(204)
-            .json({
-              items: [],
-              state: false,
-              error: 'Not Found'
-            })
+          .status(200)
+          .json({
+            items: allpost,
+            state: true,
+            error: ''
+          })
   }
+  
 }
 
 exports.filterPostDate = async (req, res, next) => {
-  const inputDate = new Date(req.params.date.toISOString());
-  const postUser =  await PostModel.find({
-      'date': { $lte: inputDate }
-  });
-  if(postUser){
-    return res
-            .status(200)
-            .json({
-              items: [postUser],
-              state: true,
-              error: ''
-            })
-  }else{
-    return res
-            .status(204)
-            .json({
-              items: [],
-              state: false,
-              error: 'Not Found'
-            })
+  const inputDate = new Date(req.params.date);
+  console.log("inputDate",inputDate)
+  if(inputDate){
+    PostModel.find({
+      'createdAt': { $gte: inputDate, $lte: inputDate }
+    }).then((value) => {
+      if(value){
+        return res
+                .status(200)
+                .json({
+                  items: value,
+                  state: true,
+                  error: ''
+                })
+      }else{
+        return res
+                .status(204)
+                .json({
+                  items: [],
+                  state: false,
+                  error: 'Not Found'
+                })
+      }
+    }).catch(err => console.log(err))
   }
+  
 }
 
 exports.filterPostDateUser = async (req, res, next) => {
@@ -138,7 +154,7 @@ exports.filterPostDateUser = async (req, res, next) => {
     return res
             .status(200)
             .json({
-              items: [postUser],
+              items: postUser,
               state: true,
               error: ''
             })

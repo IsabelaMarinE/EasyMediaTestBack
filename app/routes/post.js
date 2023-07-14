@@ -14,8 +14,8 @@ router.post('/create-post', [
   body('description').trim().notEmpty().isEmail()
 ]
 ,postController.createPost);
-router.post('/filter-title/:text', postController.filterPostTitle);
-router.post('/filter-date/:date', postController.filterPostDate);
-router.post('/filter-date/:date/:id', postController.filterPostDateUser);
+router.get('/filter-title/:text', postController.filterPostTitle);
+router.get('/filter-date/:date', postController.filterPostDate);
+router.get('/filter-date/:date/:id', postController.filterPostDateUser);
 
 module.exports = router;
