@@ -27,7 +27,7 @@ exports.getPostByUser = async (req, res, next) => {
   const { id } = req.body;
   if(id){
     try {
-      const postUser = await PostModel.find().where('idUser').equal(id);
+      const postUser = await PostModel.find({ idUser: id });
       return res
             .status(200)
             .json({
@@ -55,7 +55,7 @@ exports.createPost = (req, res, next) => {
       idUser: idUser,
       title: title,
       description: description,
-      date: new Date.now()
+      date: new Date()
     });
     newPost.save()
       .then((data) => {
@@ -120,7 +120,7 @@ exports.filterPostDate = async (req, res, next) => {
   console.log("inputDate",inputDate)
   if(inputDate){
     PostModel.find({
-      'createdAt': { $gte: inputDate, $lte: inputDate }
+      'dateCreate': { $gte: inputDate, $lte: inputDate }
     }).then((value) => {
       if(value){
         return res

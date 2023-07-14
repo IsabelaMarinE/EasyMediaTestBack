@@ -14,6 +14,9 @@ const postSchema = new Schema({
     type: String,
     require: true
   },
+  dateCreate: {
+    type: Date
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('posts', postSchema);
